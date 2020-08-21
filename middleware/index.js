@@ -20,17 +20,28 @@ Each movie should contain information about:
 Each field should be properly validated and meaningful error message should be return in case of invalid value.
  */
 const checkForRequiredFields = (body) =>{
-    const requiredFields = {"genres": "", "title":"", "year":"", "runtime":"", "director":""};
-    return JSON.stringify(Object.keys(requiredFields).sort())===JSON.stringify(Object.keys(body).sort());
+    // const requiredFields = {"genres": "", "title":"", "year":"", "runtime":"", "director":""};
+    const requiredFields = ["genres", "title", "year", "runtime", "director"];
+    const objectKeys = Object.keys(body);
+    let result=[];
+    for(let i of requiredFields){
+        if(objectKeys.indexOf(i)<0){
+            result.push(i);
+        }
+    }
+    return result;    
 }
+const checkForTypes = (body) =>{
+    const {genres, title, year, runtime, director, actors, plot, posterUrl} = body;
+}
+
 middleware.validateBody = async (req, res, next) =>{
     checkIfExists(req, res);
     const dataGenres = await utils.getData("genres");
     const {genres, title, year, runtime, director, actors, plot, posterUrl} = req.body;
-    res.send(checkForRequiredFields(req.body))
-    //  ? next() : new Error("Error occured, you must fill all required fields.")
+    const requiredFields = await checkForRequiredFields(req.body);
+    let errorMessage = "";
+    requiredFields.length > 0 ? errorMessage=`You haven't filled the required fields: ${requiredFields}` : true;
     
-
-
 }
 module.exports = middleware;
