@@ -1,5 +1,6 @@
 const utils = require("../utils/movies");
 const middleware = {};
+const Validator = require("../models/Validator");
 
 const checkIfExists = (req, res) =>{
     req.body ? true : res.error("You tried to add empty data. Try again with complete data.") ;
@@ -19,29 +20,36 @@ Each movie should contain information about:
 
 Each field should be properly validated and meaningful error message should be return in case of invalid value.
  */
-const checkForRequiredFields = (body) =>{
-    // const requiredFields = {"genres": "", "title":"", "year":"", "runtime":"", "director":""};
-    const requiredFields = ["genres", "title", "year", "runtime", "director"];
-    const objectKeys = Object.keys(body);
-    let result=[];
-    for(let i of requiredFields){
-        if(objectKeys.indexOf(i)<0){
-            result.push(i);
-        }
-    }
-    return result;    
-}
-const checkForTypes = (body) =>{
-    const {genres, title, year, runtime, director, actors, plot, posterUrl} = body;
-}
+
 
 middleware.validateBody = async (req, res, next) =>{
-    checkIfExists(req, res);
-    const dataGenres = await utils.getData("genres");
-    const {genres, title, year, runtime, director, actors, plot, posterUrl} = req.body;
-    const requiredFields = await checkForRequiredFields(req.body);
-    let errorMessage = "";
-    requiredFields.length > 0 ? errorMessage=`You haven't filled the required fields: ${requiredFields}` : true;
+    const validator = new Validator(req.body);
+    const requiredValues = await validator.checkIfRequiredValuesExist();
+    // if(requiredValues.result===false){
+    //     res.send(`There are missing required values: ${requiredValues.missingValues}`)
+    // }
+    let inputsResult = validator.checkTheInputs();
+    if(inputsResult.result === false){
+
+    }
+    if(inputsResult.result===true && requiredValues.result===true){
+        next();
+    }else{
+        res.send(`There are some problems that occured, please check the following issues:
+        <br/>
+        There are missing required values: ${requiredValues.missingValues}.
+        <br/>
+        Some fields are incorrect: <ul>${inputsResult.wrongValues}</ul>
+        `)
+    }
+    // const result = await validator.checkTheFields(req.body);
+    //    if(result===true){
+    //        next();
+    //    }else{
+    //        console.log(result);
+    //    }
+   
+    
     
 }
 module.exports = middleware;
