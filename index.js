@@ -10,6 +10,13 @@ const bodyParser = require("body-parser");
 app.use(express.static(path.join(__dirname, "data")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
+const getAllData = () =>{
+    return new Promise((resolve, reject)=>{
+        fs.readFile(`${__dirname}/data/db.json`, "utf-8", (error, result)=>{
+            error ? reject("Error fetching data") : resolve((JSON.parse(result)));
+        })
+    })
+}
 const getMovies = () =>{
     return new Promise((resolve, reject) =>{
         fs.readFile(`${__dirname}/data/db.json`, "utf-8", (error, result)=>{
@@ -18,23 +25,26 @@ const getMovies = () =>{
     })
 }
 
+// GET request for movie list
 app.get("/",  async (req, res)=>{
     try{
         const data = await getMovies();
-        res.send(data);     
+        res.json(data);     
     }catch(e){
         res.status(404).send("Error ocurred:"+e);
     }
 })
 
 app.post("/add", async (req, res)=>{
-    const data = await getMovies();
-    const id = data[data.length-1].id+1;
+    let data = await getAllData();
+    const id = data.movies[data.movies.length-1].id+1;
     let movie =req.body;
     movie.id = id;
-    data.push(movie);
+    data.movies.push(movie);
     try{
-        fs.writeFile(`${__dirname}/data/db.json`, JSON.stringify(data), "UTF-8", ()=>{})
+        fs.writeFile(`${__dirname}/data/db.json`, JSON.stringify(data), "UTF-8", ()=>{
+            res.send(movie)
+        })
        
     }catch(error){
         console.log(error);
