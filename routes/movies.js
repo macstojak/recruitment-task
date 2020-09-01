@@ -5,7 +5,7 @@ const middleware = require("../middleware");
 const utils = require("../utils/movies");
 
 
-//GET request for genres list
+//GET request for specific data: genres, movies, all data
 router.get("/:typeOfData?", async (req,res)=>{
     try{
         const data = await utils.getData(req.params.typeOfData);
@@ -15,7 +15,7 @@ router.get("/:typeOfData?", async (req,res)=>{
     }
 })
 
-//POST request to add movie to database;
+//POST request to add movie to database with validate middleware;
 router.post("/add", middleware.validateBody, async (req, res)=>{
     // let data = await utils.getData();
     // const id = data.movies[data.movies.length-1].id+1;

@@ -29,18 +29,30 @@ middleware.validateBody = async (req, res, next) =>{
     //     res.send(`There are missing required values: ${requiredValues.missingValues}`)
     // }
     let inputsResult = validator.checkTheInputs();
-    if(inputsResult.result === false){
-
-    }
+   
     if(inputsResult.result===true && requiredValues.result===true){
         next();
     }else{
-        res.send(`There are some problems that occured, please check the following issues:
-        <br/>
-        There are missing required values: ${requiredValues.missingValues}.
-        <br/>
-        Some fields are incorrect: <ul>${inputsResult.wrongValues}</ul>
-        `)
+        var message = "";
+        if(requiredValues.result === false){
+            message+=`\nThere are missing required values:`;
+            for(let keys in requiredValues.missingValues){
+                message+=`\n# ${requiredValues.missingValues[keys]}`
+            }
+         }
+        if(inputsResult.result === false){
+            message+=`\nThere are some incorrect data types you've passed:`;
+            for(let keys in inputsResult.unmatched){
+                message+=`\n # ${inputsResult.unmatched[keys].key} should be of type '${inputsResult.unmatched[keys].properType}' is '${inputsResult.unmatched[keys].invalidType}'`
+            }
+            if(inputsResult.unmatched.invalidLength){
+                message+=`\nYou've written to much text in the field ${inputsResult.unmatched.value}. Delete ${inputsResult.unmatched.invalidLength} signs`
+            }
+            
+        }
+      
+        message+=`\n Please correct required data and try again later`
+        res.send(message);
     }
     // const result = await validator.checkTheFields(req.body);
     //    if(result===true){
