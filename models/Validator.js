@@ -14,19 +14,23 @@ module.exports = class Validator{
             {name: "posterUrl", required:false, type:"string"},
         ];
     }
+
     getMatchingValues(){
         const keys = Object.keys(this.body);
         return this.checkForMatchedValues(keys);
     }
+
     getRequiredTypes(){
         return this.values.filter(el=>el.required===true).map(el=>el.name);
     }
+
     checkIfRequiredValuesExist(){
         const keys = Object.keys(this.body);
         const result =  JSON.stringify(keys.sort())===JSON.stringify(this.getRequiredTypes().sort());
         const missingValues = this.checkForMissingValues(keys);
         return {result, missingValues};
     }
+
     checkForMissingValues(keys){
         let required = this.getRequiredTypes();
         let result = required.filter(el=>{
@@ -36,6 +40,7 @@ module.exports = class Validator{
         })
         return result;
     }
+
     checkForMatchedValues(keys){
         let required = this.getRequiredTypes();
         let result = required.filter(el=>{
@@ -45,35 +50,34 @@ module.exports = class Validator{
         })
         return result;
     }
+
     checkTheInputs(){
         let unmatched = [];
+        let longInputs = [];
         // Iterating through given inputs to see if they meet conditions given: type and/or length.
         for(let key in this.body){
             let value = this.values.filter(el=>el.name===key);
-            let inproperObject={};
-            // If types don't match then create new response object
+            let inproperTypes={};
+            let inproperLength={};
+            // If types don't match then create new response object: inproperTypes
             if(value[0].type !== typeof this.body[key]){
-               
-                inproperObject.key = [key];
-                inproperObject.value=this.body[key];
-                inproperObject.properType=value[0].type;
-                inproperObject.invalidType=typeof this.body[key];   
+                inproperTypes.key = key;
+                inproperTypes.value=this.body[key];
+                inproperTypes.properType=value[0].type;
+                inproperTypes.invalidType=typeof this.body[key];   
             }
-            if(value[0].length && this.body[key].length>value[0].length){
-                inproperObject.invalidLength = this.body[key].length-value[0].length;
+              // Checking whether field has length parameter and checking if it meets the range and adding field to response object: inproperLength
+              if(value[0].length && this.body[key].length>value[0].length){
+                inproperLength.field = key;
+                inproperLength.number = this.body[key].length-value[0].length;
             }
-            // Checking whether field has length parameter and checking if it meets the range and adding field to response object
-           
-            Object.keys(inproperObject).length>0?unmatched.push(inproperObject):null;
-           
+            Object.keys(inproperTypes).length>0?unmatched.push(inproperTypes):null;
+            Object.keys(inproperLength).length>0?longInputs.push(inproperLength):null;
         }
+    
        let result = false;
-       unmatched.length > 0 ? result = false : result = true;
-       console.log("Inproper obj", unmatched)
-       return {result, unmatched}
-       
+       unmatched.length > 0 || longInputs>0 ? result = false : result = true;
+       return {result, unmatched, longInputs};
     }
-    validateInput(){
 
-    }
 }
