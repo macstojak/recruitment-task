@@ -11,10 +11,7 @@ const moviesRoutes = require("./routes/movies");
 app.use(express.static(path.join(__dirname, "data")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
-app.use(function(req, res, next){
-    res.locals.genres = req.genres;
-    next();
- });
+
 
 app.use("/", moviesRoutes);
 

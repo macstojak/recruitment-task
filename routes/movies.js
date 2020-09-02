@@ -22,11 +22,14 @@ router.get("/find", async (req,res)=>{
         if(req.query.runtime){
             const maxRuntime=Number.parseInt(req.query.runtime)+10;
             const minRuntime=Number.parseInt(req.query.runtime)-10;
-           
             const genres = req.query.genres?req.query.genres:null;
-            console.log(maxRuntime, minRuntime, genres)
             if(genres){
-                let result = data.filter(el=>el.runtime<=maxRuntime && el.runtime>=minRuntime && el.genres===genres);
+                let result = data.filter(el=>el.runtime<=maxRuntime && el.runtime>=minRuntime);
+                let genres = JSON.parse(req.query.genres);
+                genres.sort((a,b)=>a.localeCompare(b));
+                let filters = utils.showMoviesByGenres(genres, result);
+               
+              
             }else{
                 let result = data.filter(el=>el.runtime<=maxRuntime && el.runtime>=minRuntime);
                 res.send(result);
