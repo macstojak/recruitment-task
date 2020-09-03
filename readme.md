@@ -22,7 +22,9 @@ Each field should be properly validated and meaningful error message should be r
 
 2. We also need an endpoint to return a random matching movie for us. What we want to do is to send a list of genres (this parameter is optional) and a duration of a movie we are looking for.
 
-The special algorithm should first find all the movies that have all genres of our choice and runtime between <duration - 10> and <duration + 10>. Then it should repeat this algorithm for each genres combination. For example:
+The special algorithm should first find all the movies that have all genres of our choice and runtime between <duration - 10> and <duration + 10>. Then it should repeat this algorithm for each genres combination. 
+
+For example:
 
 If we send a request with genres [Comedy, Fantasy, Crime] then the top hits should be movies that have all three of them, then there should be movies that have one of [Comedy, Fantasy], [comedy, crime], [Fantasy, Crime] and then those with Comedy only, Fantasy only and Crime only.
 

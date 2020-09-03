@@ -4,7 +4,8 @@
   "description": "Hey there!",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test-dev": "jest"
   },
   "author": "Maciej",
   "license": "ISC",

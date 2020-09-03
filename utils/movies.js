@@ -22,37 +22,42 @@ const getData = (typeOfData) =>{
         })
     })
 };
+const getCombinations = (valuesArray) =>{
+    var combinations = [];
+    var temp = [];
+    var size = Math.pow(2, valuesArray.length);
 
-const showMoviesByGenres = (genres, movies) =>{
-    let size = genres.length;
-    let possibilities = [];
-    for(let i=0; i<=size; i++){
-        let tempGenres = genres.slice();
-        for(let j=0; j<size; j++){
-            let temp = tempGenres.slice(j,i);
-            if(temp.length>0)
-            possibilities.push(temp);
-            possibilities.sort((a,b)=>b.length-a.length)
+    for (var i=0; i<size; i++)
+    {
+        temp = [];
+        for (var j=0; j<valuesArray.length; j++)
+        {
+            if ((i & Math.pow(2, j)))
+            {
+                temp.push(valuesArray[j]);
+            }
+        }
+        if (temp.length>0)
+        {
+            combinations.push(temp);
         }
     }
-    console.log(possibilities)
+    combinations.sort((a, b) => b.length - a.length);
+    return combinations;
+}
+
+const showMoviesByGenres = (genres, movies) =>{     
+    let possibilities = getCombinations(genres);
     let moviesList = [];
     for(let genre of possibilities){
         for(movie of movies){
-          
-           
             let movieGenres = movie.genres.sort((a,b)=>a.localeCompare(b));
-            // if(JSON.stringify(genre)===JSON.stringify(movie.genres)){
-                console.log(JSON.stringify(genre) === JSON.stringify(movieGenres),genre, movieGenres);
-            // }
             if(JSON.stringify(genre)===JSON.stringify(movieGenres)){
                 moviesList.push(movie);
             }
         }
-        
     }
-    console.log(moviesList);
     return moviesList;
 }
 
-module.exports = {getData, showMoviesByGenres};
+module.exports = {getData, showMoviesByGenres, getCombinations};

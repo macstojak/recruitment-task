@@ -27,8 +27,8 @@ router.get("/find", async (req,res)=>{
                 let result = data.filter(el=>el.runtime<=maxRuntime && el.runtime>=minRuntime);
                 let genres = JSON.parse(req.query.genres);
                 genres.sort((a,b)=>a.localeCompare(b));
-                let filters = utils.showMoviesByGenres(genres, result);
-               
+                let movies = utils.showMoviesByGenres(genres, result);
+               res.send(movies);
               
             }else{
                 let result = data.filter(el=>el.runtime<=maxRuntime && el.runtime>=minRuntime);
@@ -36,9 +36,7 @@ router.get("/find", async (req,res)=>{
             }
             
 
-            //1. Find all movies that have ALL given genres from the list recursively:["Comedy","Fantasy","Crime","Drama",
-            // "Music","Adventure","History","Thriller","Animation","Family","Mystery","Biography",
-            // "Action","Film-Noir","Romance","Sci-Fi","War","Western","Horror","Musical","Sport"]
+            
             
             
         }else{
