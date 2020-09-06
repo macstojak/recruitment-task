@@ -1,3 +1,4 @@
+'use strict'
 module.exports = class Validator{
     constructor(body){
         this.body = body;
@@ -26,9 +27,12 @@ module.exports = class Validator{
 
     checkIfRequiredValuesExist(){
         const keys = Object.keys(this.body);
-        const result =  JSON.stringify(keys.sort())===JSON.stringify(this.getRequiredTypes().sort());
+        const required = this.getRequiredTypes().sort();
+        // check if all required inputs have been passed;
+        const result = required.every(el=>keys.includes(el));
         const missingValues = this.checkForMissingValues(keys);
-        return {result, missingValues};
+        const responseObject = {result, missingValues};
+        return responseObject;
     }
 
     checkForMissingValues(keys){

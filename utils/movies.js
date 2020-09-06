@@ -1,3 +1,4 @@
+'use strict'
 const fs = require("fs");
 const path = require("path");
 
@@ -10,10 +11,10 @@ const getData = (typeOfData) =>{
             } else{
                 switch(typeOfData){
                     case "movies":
-                        resolve((JSON.parse(result).movies));
+                        resolve(JSON.parse(result).movies);
                         break;
                     case "genres":
-                        resolve((JSON.parse(result).genres));
+                        resolve(JSON.parse(result).genres);
                         break;
                     default:
                         resolve(JSON.parse(result));
@@ -22,6 +23,7 @@ const getData = (typeOfData) =>{
         })
     })
 };
+
 const getCombinations = (valuesArray) =>{
     var combinations = [];
     var temp = [];
@@ -46,18 +48,31 @@ const getCombinations = (valuesArray) =>{
     return combinations;
 }
 
-const showMoviesByGenres = (genres, movies) =>{     
-    let possibilities = getCombinations(genres);
-    let moviesList = [];
-    for(let genre of possibilities){
-        for(movie of movies){
-            let movieGenres = movie.genres.sort((a,b)=>a.localeCompare(b));
-            if(JSON.stringify(genre)===JSON.stringify(movieGenres)){
-                moviesList.push(movie);
+const findMovies = async (genres, movies, runtime) =>{    
+        let result;
+        if(genres){
+            genres.sort((a,b)=>a.localeCompare(b));
+            let possibilities = getCombinations(genres);
+            let moviesList = [];
+            for(let genre of possibilities){
+                for(let movie of movies){
+                    let movieGenres = movie.genres.sort((a,b)=>a.localeCompare(b));
+                    if(JSON.stringify(genre)===JSON.stringify(movieGenres)){
+                        moviesList.push(movie);
+                    }
+                }
             }
+            result = moviesList;
         }
-    }
-    return moviesList;
+        if(runtime){
+            const maxRuntime=Number.parseInt(runtime)+10;
+            const minRuntime=Number.parseInt(runtime)-10;
+            result ? result = result.filter(el=>el.runtime<=maxRuntime && el.runtime>=minRuntime) : result=movies.filter(el=>el.runtime<=maxRuntime && el.runtime>=minRuntime);
+        }
+        if(!genres && !runtime){
+            result=movies[Math.floor(Math.random()*movies.length)];
+        }
+        return result;
 }
 
-module.exports = {getData, showMoviesByGenres, getCombinations};
+module.exports = {getData, findMovies, getCombinations};

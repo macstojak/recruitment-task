@@ -24,21 +24,18 @@ const checkTheErrors = (requiredValues, inputsResult, error) =>{
          error.subscribe(`\n# In the field '${el.field}' you've written ${el.number} characters too much.`);
       
       })
-      error.subscribe(`Try to remove unnecesary data.`)
-         
+      error.subscribe(`Try to remove unnecesary data.`)    
      }
-     error.subscribe(`\n Please correct required data and try again later`);
-     console.log(error.fire())
-     
+       
 }
 
 middleware.validateBody = async (req, res, next) => {
   const validator = new Validator(req.body);
   const error = new ErrorMessage();
   const requiredValues = await validator.checkIfRequiredValuesExist();
-  const inputsResult = validator.checkTheInputs();
+  const inputsResult = await validator.checkTheInputs();
   
-  if(inputsResult.result === true && requiredValues.result === true) {
+  if(inputsResult.result && requiredValues.result) {
     next();
   }else{
     checkTheErrors(requiredValues, inputsResult, error);

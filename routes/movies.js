@@ -1,3 +1,4 @@
+'use strict'
 const fs = require("fs");
 const express = require("express");
 const router = express.Router();
@@ -15,36 +16,19 @@ router.get("/data/:typeOfData?", async (req,res)=>{
     }
 })
 
-//GET request for retrieving random movie with filters
+//GET request for retrieving movie with filters
 router.get("/find", async (req,res)=>{
     try{
-        const data = await utils.getData("movies");
-        if(req.query.runtime){
-            const maxRuntime=Number.parseInt(req.query.runtime)+10;
-            const minRuntime=Number.parseInt(req.query.runtime)-10;
-            const genres = req.query.genres?req.query.genres:null;
-            if(genres){
-                let result = data.filter(el=>el.runtime<=maxRuntime && el.runtime>=minRuntime);
-                let genres = JSON.parse(req.query.genres);
-                genres.sort((a,b)=>a.localeCompare(b));
-                let movies = utils.showMoviesByGenres(genres, result);
-               res.send(movies);
-              
-            }else{
-                let result = data.filter(el=>el.runtime<=maxRuntime && el.runtime>=minRuntime);
-                res.send(result);
-            }
-            
-
-            
-            
-            
-        }else{
-            let random = Math.floor(Math.random() * data.length)
+        const result = await utils.getData("movies");
+        const genres = req.query.genres?JSON.parse(req.query.genres):null;
+        const runtime = req.query.runtime?JSON.parse(req.query.runtime):null;
+        let movies = await utils.findMovies(genres, result, runtime);
+        if(movies.length>0){
+            res.send(movies);
         }
-
+        res.send("There are no movies in our database with given runtime or genres")
     }catch(e){
-        res.status(404).send("Couldn't find any movie with specified data. Try again later")
+        res.status(404).send("Couldn't find any movie with specified data. Change criteria and try again")
     }
 })
 
@@ -59,7 +43,6 @@ router.post("/add", middleware.validateBody, async (req, res)=>{
         fs.writeFile(`${__dirname}/data/db.json`, JSON.stringify(data), "UTF-8", ()=>{
             res.send(movie)
         })
-       
     }catch(error){
         console.log(error);
     }
