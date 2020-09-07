@@ -23,12 +23,9 @@ router.get("/find", async (req,res)=>{
         const genres = req.query.genres?JSON.parse(req.query.genres):null;
         const runtime = req.query.runtime?JSON.parse(req.query.runtime):null;
         let movies = await utils.findMovies(genres, result, runtime);
-        if(movies.length>0){
-            res.send(movies.map(el=>{return el.title+" - "+el.genres}));
-        }
-        res.send("There are no movies in our database with given runtime or genres")
+        movies.length>0 ? res.send(movies.map(el=>{return el.title+" - "+el.genres})) : res.send("There are no movies in our database with given runtime or genres")
     }catch(e){
-        res.send("Couldn't find any movie with specified data. Change criteria and try again")
+        res.send("Couldn't find any movie with specified data. Change criteria and try again");
     }
 })
 

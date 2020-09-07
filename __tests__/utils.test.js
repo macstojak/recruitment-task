@@ -1,5 +1,6 @@
 const utils = require("../utils/movies");
-
+const movies = utils.getData("movies");
+const genres = utils.getCombinations(["Action", "Comedy", "Drama"])
 describe("utils getData()", ()=>{
     it("should return data", ()=>{
         //1. Get all data
@@ -30,5 +31,13 @@ describe("utils getCombinations()", ()=>{
     it("should return specific number of combinations and be an array", ()=>{
         expect(utils.getCombinations(["Action", "Drama", "Horror"]).length).toBe(7);
         expect(Array.isArray(utils.getCombinations(["Action", "Drama", "Horror"]))).toBe(true);
+    })
+})
+
+describe("utils shallowSearch()", ()=>{
+    it("should return all movies containing some of genres", ()=>{
+            return utils.getData("movies").then(movies=>{
+                expect(utils.shallowSearch(genres, movies)).toBeDefined();
+            })
     })
 })

@@ -47,41 +47,50 @@ const getCombinations = (valuesArray) =>{
     combinations.sort((a, b) => b.length - a.length);
     return combinations;
 }
+const shallowSearch = (possibilities, movies) =>{
+    let shallowData = [];
+    for(let genre of possibilities){
+        for(let movie of movies){
+            let movieGenres = movie.genres.sort((a,b)=>a.localeCompare(b));
+            if(movieGenres.some(el=>genre.includes(el))){
+                shallowData.push(movie);
+            }
+        }
+    }
+    return shallowData;
+}
+
+const preciseSearch = (possibilities, moviesList) =>{
+    let preciseData = [];
+    while(moviesList.length>0){
+        for(let genre of possibilities){
+            for(let movie of moviesList){
+                let r = genre.every(el=>movie.genres.includes(el));
+                if(r){
+                    preciseData.push(movie);
+                    moviesList.splice([moviesList.findIndex(m=>m.title===movie.title)],1);
+                }
+            }
+        }
+    }
+    return preciseData;
+}
 
 const findMovies = async (genres, movies, runtime) =>{    
         let result;
         if(genres){
             genres.sort((a,b)=>a.localeCompare(b));
             let possibilities = await getCombinations(genres);
-            let moviesList = [];
-            let temp=[];
-
-            for(let genre of possibilities){
-                for(let movie of movies){
-                    let movieGenres = movie.genres.sort((a,b)=>a.localeCompare(b));
-                    // console.log(movieGenres.some(el=>genre.includes(el)), movieGenres, genre)
-                    if(movieGenres.some(el=>genre.includes(el))){
-                        moviesList.push(movie);
-                    }
-                }
-            }
+            //shallow search of movies which contain only some of the genres given
+            let moviesList = await shallowSearch(possibilities, movies);
            
-            //remove duplicates and sort after the best match
+            // remove duplicates from shallow search
             result = [...new Set(moviesList)];
-            for(let genre of possibilities){
-                for(let movie of moviesList){
-                    //find movie which has all the given genres
-                    let r = genre.every(el=>movie.genres.includes(el));
-                    if(r){
-                        temp.push(movie);
-                        moviesList.splice([moviesList.findIndex(m=>m.title===movie.title)],1);
-                    }
-                   
-                }
-            }
             
+            // precise search finding movie which has all given genres combinations (no specific order)
+            let temp = await preciseSearch(possibilities, moviesList);
+            // removing duplicates from precise search
             result = [...new Set(temp)];
-            result=temp;
         }
         if(runtime){
             const maxRuntime=Number.parseInt(runtime)+10;
@@ -94,4 +103,4 @@ const findMovies = async (genres, movies, runtime) =>{
         return result;
 }
 
-module.exports = {getData, findMovies, getCombinations};
+module.exports = {getData, findMovies, getCombinations, shallowSearch, preciseSearch};
