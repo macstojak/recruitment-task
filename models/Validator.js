@@ -65,10 +65,13 @@ module.exports = class Validator{
             let inproperLength={};
             // If types don't match then create new response object: inproperTypes
             if(value[0].type !== typeof this.body[key]){
-                inproperTypes.key = key;
-                inproperTypes.value=this.body[key];
-                inproperTypes.properType=value[0].type;
-                inproperTypes.invalidType=typeof this.body[key];   
+                if(value[0].type!=="array" && !Array.isArray(this.body[key])){
+                    inproperTypes.key = key;
+                    inproperTypes.value=this.body[key];
+                    inproperTypes.properType=value[0].type;
+                    inproperTypes.invalidType=typeof this.body[key];  
+                }
+                
             }
               // Checking whether field has length parameter and checking if it meets the range and adding field to response object: inproperLength
               if(value[0].length && this.body[key].length>value[0].length){

@@ -52,17 +52,36 @@ const findMovies = async (genres, movies, runtime) =>{
         let result;
         if(genres){
             genres.sort((a,b)=>a.localeCompare(b));
-            let possibilities = getCombinations(genres);
+            let possibilities = await getCombinations(genres);
             let moviesList = [];
+            let temp=[];
+
             for(let genre of possibilities){
                 for(let movie of movies){
                     let movieGenres = movie.genres.sort((a,b)=>a.localeCompare(b));
-                    if(JSON.stringify(genre)===JSON.stringify(movieGenres)){
+                    // console.log(movieGenres.some(el=>genre.includes(el)), movieGenres, genre)
+                    if(movieGenres.some(el=>genre.includes(el))){
                         moviesList.push(movie);
                     }
                 }
             }
-            result = moviesList;
+           
+            //remove duplicates and sort after the best match
+            result = [...new Set(moviesList)];
+            for(let genre of possibilities){
+                for(let movie of moviesList){
+                    //find movie which has all the given genres
+                    let r = genre.every(el=>movie.genres.includes(el));
+                    if(r){
+                        temp.push(movie);
+                        moviesList.splice([moviesList.findIndex(m=>m.title===movie.title)],1);
+                    }
+                   
+                }
+            }
+            
+            result = [...new Set(temp)];
+            result=temp;
         }
         if(runtime){
             const maxRuntime=Number.parseInt(runtime)+10;

@@ -24,11 +24,11 @@ router.get("/find", async (req,res)=>{
         const runtime = req.query.runtime?JSON.parse(req.query.runtime):null;
         let movies = await utils.findMovies(genres, result, runtime);
         if(movies.length>0){
-            res.send(movies);
+            res.send(movies.map(el=>{return el.title+" - "+el.genres}));
         }
         res.send("There are no movies in our database with given runtime or genres")
     }catch(e){
-        res.status(404).send("Couldn't find any movie with specified data. Change criteria and try again")
+        res.send("Couldn't find any movie with specified data. Change criteria and try again")
     }
 })
 
@@ -39,8 +39,9 @@ router.post("/add", middleware.validateBody, async (req, res)=>{
     let movie = req.body;
     movie.id = id;
     data.movies.push(movie);
+    console.log("Hello",data.movies[data.movies.length-1], movie)
     try{
-        fs.writeFile(`${__dirname}/data/db.json`, JSON.stringify(data), "UTF-8", ()=>{
+        fs.writeFile(`${__dirname}/../data/db.json`, JSON.stringify(data), "UTF-8", (response)=>{
             res.send(movie)
         })
     }catch(error){

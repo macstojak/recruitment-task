@@ -3,6 +3,21 @@ const middleware = {};
 const Validator = require("../models/Validator");
 const ErrorMessage = require("../models/ErrorMessage");
 
+
+middleware.validateBody = async (req, res, next) => {
+  const validator = new Validator(req.body);
+  const error = new ErrorMessage();
+  const requiredValues = await validator.checkIfRequiredValuesExist();
+  const inputsResult = await validator.checkTheInputs();
+  
+  if(inputsResult.result && requiredValues.result) {
+    next();
+  }else{
+    checkTheErrors(requiredValues, inputsResult, error);
+    res.send(error.fire());
+  }
+};
+
 const checkTheErrors = (requiredValues, inputsResult, error) =>{
   if (requiredValues.result === false) {
     error.subscribe(`\nThere are missing required values:`);
@@ -18,28 +33,13 @@ const checkTheErrors = (requiredValues, inputsResult, error) =>{
       }
     }
   }
-  if (inputsResult.longInputs) {
+  if (inputsResult.longInputs.length>0) {
       error.subscribe(`\nSome fields are too long:`);
       inputsResult.longInputs.forEach(el=>{
          error.subscribe(`\n# In the field '${el.field}' you've written ${el.number} characters too much.`);
-      
       })
-      error.subscribe(`Try to remove unnecesary data.`)    
+      error.subscribe(`Try to remove unnecesary data.`);    
      }
        
 }
-
-middleware.validateBody = async (req, res, next) => {
-  const validator = new Validator(req.body);
-  const error = new ErrorMessage();
-  const requiredValues = await validator.checkIfRequiredValuesExist();
-  const inputsResult = await validator.checkTheInputs();
-  
-  if(inputsResult.result && requiredValues.result) {
-    next();
-  }else{
-    checkTheErrors(requiredValues, inputsResult, error);
-    res.send(error.fire());
-  }
-};
 module.exports = middleware;
