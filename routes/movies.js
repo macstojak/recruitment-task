@@ -12,7 +12,7 @@ router.get("/data/:typeOfData?", async (req,res)=>{
         const data = await utils.getData(req.params.typeOfData);
         res.json(data);
     }catch(e){
-        res.status(404).send("Couldn't get the data");
+        res.send("Couldn't get the data"+ e);
     }
 })
 
@@ -20,12 +20,12 @@ router.get("/data/:typeOfData?", async (req,res)=>{
 router.get("/find", async (req,res)=>{
     try{
         const result = await utils.getData("movies");
-        const genres = req.query.genres?JSON.parse(req.query.genres):null;
-        const runtime = req.query.runtime?JSON.parse(req.query.runtime):null;
+        const genres = req.query.genres?JSON.parse(req.query.genres):false;
+        const runtime = req.query.runtime?JSON.parse(req.query.runtime):false;
         let movies = await utils.findMovies(genres, result, runtime);
-        movies.length>0 ? res.send(movies.map(el=>{return el.title+" - "+el.genres})) : res.send("There are no movies in our database with given runtime or genres")
+        movies.length>0 ? res.send(movies.map((el, index)=>`${index+1}. ${el.title}; genres: ${el.genres}; runtime: ${el.runtime}`)) : res.send(`Random movie:\n${movies.title}\ngenres: ${movies.genres}\nruntime: ${movies.runtime}`);
     }catch(e){
-        res.send("Couldn't find any movie with specified data. Change criteria and try again");
+        res.send("Couldn't find any movie with specified data. Change criteria and try again"+e);
     }
 })
 
@@ -36,13 +36,13 @@ router.post("/add", middleware.validateBody, async (req, res)=>{
     let movie = req.body;
     movie.id = id;
     data.movies.push(movie);
-    console.log("Hello",data.movies[data.movies.length-1], movie)
+
     try{
-        fs.writeFile(`${__dirname}/../data/db.json`, JSON.stringify(data), "UTF-8", (response)=>{
-            res.send(movie)
+        fs.writeFile(`${__dirname}/../data/db.json`, JSON.stringify(data), "UTF-8", ()=>{
+            res.send("Movie added");
         })
     }catch(error){
-        console.log(error);
+        res.send("Can't add movie. Error occured:" + error)
     }
 })
 

@@ -78,6 +78,7 @@ const preciseSearch = (possibilities, moviesList) =>{
 
 const findMovies = async (genres, movies, runtime) =>{    
         let result;
+       
         if(genres){
             genres.sort((a,b)=>a.localeCompare(b));
             let possibilities = await getCombinations(genres);
@@ -97,7 +98,7 @@ const findMovies = async (genres, movies, runtime) =>{
             const minRuntime=Number.parseInt(runtime)-10;
             result ? result = result.filter(el=>el.runtime<=maxRuntime && el.runtime>=minRuntime) : result=movies.filter(el=>el.runtime<=maxRuntime && el.runtime>=minRuntime);
         }
-        if(!genres && !runtime){
+        if((!genres && !runtime)===true){
             result=movies[Math.floor(Math.random()*movies.length)];
         }
         return result;

@@ -41,3 +41,24 @@ describe("Validator checkIfRequiredValuesExist()",()=>{
     })
 })
 
+describe("getRequiredValues()",()=>{
+    it("should return ['director','genres','runtime','title','year']", ()=>{
+        expect(validatorValid.getRequiredTypes().sort((a,b)=>a.localeCompare(b))).toStrictEqual(["director","genres","runtime","title","year"])
+    })
+})
+
+describe("checkForMissingValues()",()=>{
+    it("should return ['genres','year'] for validatorInvalid object", ()=>{
+        expect(validatorInvalid.checkForMissingValues(Object.keys(validatorInvalid.body))).toStrictEqual(["genres", "year"]);
+    })
+})
+describe("checkTheInputs()", ()=>{
+    it("should return result false for validatorInvalid object", ()=>{
+        expect(validatorInvalid.checkTheInputs().result).toBeFalsy();
+    })
+})
+describe("checkTheInputs()", ()=>{
+    it("should return result true for validatorValid object", ()=>{
+        expect(validatorValid.checkTheInputs().result).toBeTruthy();
+    })
+})

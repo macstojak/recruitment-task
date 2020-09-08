@@ -82,8 +82,8 @@ module.exports = class Validator{
             Object.keys(inproperLength).length>0?longInputs.push(inproperLength):null;
         }
     
-       let result = false;
-       unmatched.length > 0 || longInputs>0 ? result = false : result = true;
+       let result;
+       unmatched.length > 0 || longInputs.length>0 ? result = false : result = true;
        return {result, unmatched, longInputs};
     }
 
